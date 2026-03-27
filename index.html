@@ -29,8 +29,8 @@
 </div>
 
 <script>
-    // GANTI TANDA XXX DENGAN API KEY BARU KAMU
-    const KUNCI_API = "AIzaSyBaKC0vGQBUZRrLkbAW4Spsq3MbcimZuo4"; 
+    // MASUKKAN API KEY BARU KAMU DI BAWAH INI (TETAP DI DALAM TANDA KUTIP)
+    const KUNCI_API = "TEMPEL_API_KEY_KAMU_DISINI"; 
 
     async function tanyaAI(topik) {
         const status = document.getElementById('status');
@@ -41,8 +41,8 @@
 
         const promptJSON = `Buat 3 soal pilihan ganda tentang ${topik} untuk tes CASN 2026. Berikan HANYA format JSON seperti ini: [{"q":"soal","o":["A","B","C","D"],"c":0}]`;
 
-        // Kita gunakan v1beta/models/gemini-pro (Kadang flash lebih sensitif terhadap region)
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${KUNCI_API}`;
+        // MENGGUNAKAN MODEL GEMINI-PRO (Paling stabil dan pasti didukung)
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${KUNCI_API}`;
 
         try {
             const respon = await fetch(url, {
