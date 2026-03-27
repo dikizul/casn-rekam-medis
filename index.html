@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEM BELAJAR CASN 2026 - REKAM MEDIS</title>
+    <title>AI PRIVAT CASN 2026 - REKAM MEDIS</title>
     <style>
         :root { --p: #1a73e8; --s: #202124; --bg: #f8f9fa; --card: #ffffff; --success: #1e8e3e; --danger: #d93025; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--s); margin: 0; padding: 20px; line-height: 1.6; }
@@ -92,15 +92,17 @@
         const loading = document.getElementById('loading');
         const area = document.getElementById('quiz-area');
         loading.style.display = "block";
-        loading.innerHTML = "🤖 AI sedang memproses soal terbaru...";
+        loading.innerHTML = "🤖 AI sedang merancang soal prediksi 2026...";
         area.innerHTML = "";
         document.getElementById('analysis-box').style.display = "none";
         answered = 0; correctCount = 0; activeTopic = topic;
 
-        const prompt = `Berikan 5 soal pilihan ganda HOTS CASN 2026 topik ${topic} dalam format JSON murni: [{"q":"soal","o":["A","B","C","D"],"c":0,"e":"penjelasan"}]. Jangan berikan teks lain.`;
+        const prompt = `Berperanlah sebagai pakar seleksi CASN 2026 Indonesia. Buat 5 soal pilihan ganda HOTS tentang ${topic}. 
+        Format harus JSON murni: [{"q":"soal","o":["A","B","C","D"],"c":0,"e":"penjelasan"}]. 
+        Jangan berikan teks pembuka/penutup. Hanya JSON.`;
 
-        // Menggunakan v1beta yang paling stabil untuk Gemini 1.5 Flash
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
+        // URL stabil menggunakan versi v1
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
 
         try {
             const response = await fetch(url, {
@@ -113,16 +115,18 @@
             if(data.error) throw new Error(data.error.message);
 
             let rawText = data.candidates[0].content.parts[0].text;
+            
+            // Pembersihan Teks: Mengambil karakter di antara [ dan ] saja agar JSON valid
             const start = rawText.indexOf('[');
             const end = rawText.lastIndexOf(']') + 1;
             
-            if(start === -1) throw new Error("Format AI salah, coba klik lagi.");
+            if(start === -1) throw new Error("Format AI tidak valid. Silakan klik tombol lagi.");
             
             currentQuestions = JSON.parse(rawText.substring(start, end));
             loading.style.display = "none";
             renderQuiz();
         } catch (e) {
-            loading.innerHTML = `<span style="color:red">❌ Gagal: ${e.message}</span>`;
+            loading.innerHTML = `<span style="color:red">❌ Gagal: ${e.message}</span><br><small>Saran: Pastikan API Key di Google AI Studio sudah AKTIF.</small>`;
             console.error(e);
         }
     }
@@ -170,10 +174,10 @@
         box.style.display = "block";
         text.innerText = "AI sedang menganalisis kelemahan Anda...";
 
-        const prompt = `Saya dapat skor ${score}% di ${activeTopic}. Analisis 2 kalimat kelemahan saya untuk CASN 2026.`;
+        const prompt = `Saya dapat skor ${score}% di topik ${activeTopic}. Berikan analisis dalam 2 kalimat: apa kekurangan saya dan materi spesifik apa yang harus saya pelajari untuk tes 2026?`;
 
         try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -182,7 +186,7 @@
             const data = await response.json();
             text.innerText = data.candidates[0].content.parts[0].text;
         } catch (e) {
-            text.innerText = `Latihan Selesai! Skor: ${score}%`;
+            text.innerText = `Latihan Selesai! Skor Anda: ${score}%`;
         }
     }
 </script>
