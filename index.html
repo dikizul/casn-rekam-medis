@@ -42,7 +42,7 @@
         const promptJSON = `Buat 3 soal pilihan ganda tentang ${topik} untuk tes CASN 2026. Berikan HANYA format JSON seperti ini: [{"q":"soal","o":["A","B","C","D"],"c":0}]`;
 
         // Kita gunakan v1beta/models/gemini-pro (Kadang flash lebih sensitif terhadap region)
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KUNCI_API}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${KUNCI_API}`;
 
         try {
             const respon = await fetch(url, {
