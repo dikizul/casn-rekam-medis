@@ -3,31 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI PRIVAT CASN 2026 - REKAM MEDIS</title>
+    <title>SISTEM BELAJAR CASN 2026 - REKAM MEDIS</title>
     <style>
         :root { --p: #1a73e8; --s: #202124; --bg: #f8f9fa; --card: #ffffff; --success: #1e8e3e; --danger: #d93025; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--s); margin: 0; padding: 20px; line-height: 1.6; }
         .container { max-width: 850px; margin: auto; background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 25px; }
         .badge { background: linear-gradient(90deg, #4285f4, #9b72cb); color: white; padding: 5px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .stat-card { background: #fff; border: 1px solid #dadce0; padding: 10px; border-radius: 12px; text-align: center; }
         .stat-val { font-size: 20px; font-weight: bold; color: var(--p); }
         .stat-label { font-size: 10px; color: #5f6368; text-transform: uppercase; }
-
         .nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
         .nav button { flex: 1; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; background: #f1f3f4; font-weight: bold; white-space: nowrap; transition: 0.2s; font-size: 13px; }
         .nav button:hover { background: #e8eaed; }
-        .nav button.active { background: var(--p); color: white; }
-
         .q-box { background: white; border: 1px solid #dadce0; border-radius: 12px; padding: 20px; margin-bottom: 20px; animation: fadeIn 0.5s ease; }
         .opt-btn { display: block; width: 100%; text-align: left; padding: 14px; margin: 10px 0; border: 1.5px solid #dadce0; border-radius: 10px; cursor: pointer; background: white; font-size: 15px; transition: 0.2s; }
         .opt-btn:hover:not(:disabled) { background: #f8f9fa; border-color: var(--p); }
-        
         .exp { display: none; background: #e8f0fe; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 5px solid var(--p); font-size: 14px; }
         #analysis-box { display: none; background: #fff8e1; border: 2px solid #fbbc04; padding: 20px; border-radius: 15px; margin-top: 25px; }
-        
         .correct { background: #e6f4ea !important; border-color: var(--success) !important; color: var(--success); font-weight: bold; }
         .wrong { background: #fce8e6 !important; border-color: var(--danger) !important; color: var(--danger); }
         #loading { display: none; text-align: center; padding: 30px; font-weight: bold; color: var(--p); }
@@ -38,9 +32,9 @@
 
 <div class="container">
     <div class="header">
-        <span class="badge">Sistem Terintegrasi AI 2026</span>
+        <span class="badge">Gemini AI Engine - v1 Stable</span>
         <h1>AI Tutor CASN 2026</h1>
-        <p style="font-size: 14px; color: #5f6368;">Auto-Login Aktif | Selamat Belajar!</p>
+        <p style="font-size: 14px; color: #5f6368;">Auto-Login Aktif | D3 Rekam Medis & SKD</p>
     </div>
 
     <div class="stats-grid">
@@ -66,7 +60,7 @@
 </div>
 
 <script>
-    // MASUKKAN API KEY ANDA DI BAWAH INI
+    // MASUKKAN API KEY ANDA DI SINI
     const MY_API_KEY = "AIzaSyCA8lPPMvkbjbzRAOUf2LzHqxijGEXyOy4";
 
     let currentQuestions = [];
@@ -74,9 +68,7 @@
     let answered = 0;
     let activeTopic = "";
 
-    window.onload = () => {
-        updateStats();
-    };
+    window.onload = () => { updateStats(); };
 
     function updateStats() {
         const history = JSON.parse(localStorage.getItem('casn_history') || '[]');
@@ -97,37 +89,40 @@
         document.getElementById('analysis-box').style.display = "none";
         answered = 0; correctCount = 0; activeTopic = topic;
 
-        const prompt = `Berperanlah sebagai pakar seleksi CASN 2026 Indonesia. Buat 5 soal pilihan ganda HOTS tentang ${topic}. 
-        Format harus JSON murni: [{"q":"soal","o":["A","B","C","D"],"c":0,"e":"penjelasan"}]. 
-        Jangan berikan teks pembuka/penutup. Hanya JSON.`;
+        const prompt = `Buat 5 soal pilihan ganda HOTS tentang ${topic} (CASN Indonesia 2026). Format JSON murni: [{"q":"soal","o":["A","B","C","D"],"c":0,"e":"penjelasan"}]. Jangan berikan teks lain.`;
 
-        // URL stabil menggunakan versi v1
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
+        // DAFTAR MODEL YANG AKAN DICOBA (FALLBACK)
+        const endpoints = [
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`
+        ];
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
+        let success = false;
+        for (let url of endpoints) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
 
-            const data = await response.json();
-            if(data.error) throw new Error(data.error.message);
+                const data = await response.json();
+                if (data.error) continue; // Jika gagal, coba endpoint berikutnya
 
-            let rawText = data.candidates[0].content.parts[0].text;
-            
-            // Pembersihan Teks: Mengambil karakter di antara [ dan ] saja agar JSON valid
-            const start = rawText.indexOf('[');
-            const end = rawText.lastIndexOf(']') + 1;
-            
-            if(start === -1) throw new Error("Format AI tidak valid. Silakan klik tombol lagi.");
-            
-            currentQuestions = JSON.parse(rawText.substring(start, end));
-            loading.style.display = "none";
-            renderQuiz();
-        } catch (e) {
-            loading.innerHTML = `<span style="color:red">❌ Gagal: ${e.message}</span><br><small>Saran: Pastikan API Key di Google AI Studio sudah AKTIF.</small>`;
-            console.error(e);
+                let rawText = data.candidates[0].content.parts[0].text;
+                const start = rawText.indexOf('[');
+                const end = rawText.lastIndexOf(']') + 1;
+                
+                currentQuestions = JSON.parse(rawText.substring(start, end));
+                loading.style.display = "none";
+                renderQuiz();
+                success = true;
+                break; // Keluar dari loop jika berhasil
+            } catch (e) { console.error("Gagal mencoba endpoint:", url); }
+        }
+
+        if (!success) {
+            loading.innerHTML = `<span style="color:red">❌ Gagal memanggil AI. Pastikan API Key Anda benar dan memiliki izin "No Restrictions".</span>`;
         }
     }
 
@@ -149,15 +144,8 @@
         const btns = btn.parentElement.querySelectorAll('.opt-btn');
         btns.forEach(b => b.disabled = true);
         document.getElementById(`exp-${qIdx}`).style.display = "block";
-
-        if(selected === correct) {
-            btn.classList.add('correct');
-            correctCount++;
-        } else {
-            btn.classList.add('wrong');
-            btns[correct].classList.add('correct');
-        }
-
+        if(selected === correct) { btn.classList.add('correct'); correctCount++; }
+        else { btn.classList.add('wrong'); btns[correct].classList.add('correct'); }
         answered++;
         if(answered === currentQuestions.length) getAIAnalysis();
     }
@@ -174,7 +162,7 @@
         box.style.display = "block";
         text.innerText = "AI sedang menganalisis kelemahan Anda...";
 
-        const prompt = `Saya dapat skor ${score}% di topik ${activeTopic}. Berikan analisis dalam 2 kalimat: apa kekurangan saya dan materi spesifik apa yang harus saya pelajari untuk tes 2026?`;
+        const prompt = `Skor saya ${score}% di topik ${activeTopic}. Analisis dalam 2 kalimat: apa kekurangan saya dan apa yang harus dipelajari untuk tes CASN 2026?`;
 
         try {
             const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${MY_API_KEY}`;
@@ -185,11 +173,8 @@
             });
             const data = await response.json();
             text.innerText = data.candidates[0].content.parts[0].text;
-        } catch (e) {
-            text.innerText = `Latihan Selesai! Skor Anda: ${score}%`;
-        }
+        } catch (e) { text.innerText = `Selesai! Skor Anda: ${score}%`; }
     }
 </script>
-
 </body>
 </html>
